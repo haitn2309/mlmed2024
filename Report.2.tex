@@ -1,0 +1,143 @@
+\documentclass{report}
+\usepackage[utf8]{inputenc}
+\usepackage{graphicx} % Required for including images
+\usepackage[english]{babel}
+\usepackage{titlesec}
+\title{ECG Classification Report}
+\author{BI12-150 Tran Ngoc Hai}
+\date{19/3/2024}
+
+\begin{document}
+
+\maketitle{HC18 Dataset}
+
+\section{Introduction}
+The burgeoning field of medical image analysis has been significantly revolutionized by advances in machine learning and computer vision, particularly with the application of deep learning techniques. The work at hand delves into the domain of obstetric ultrasound imagery, focusing on the quantification of fetal head circumference -- a pivotal biometric parameter crucial for monitoring fetal development.
+
+The dataset underpinning this study comprises a compendium of ultrasound images of fetal heads, each accompanied by meticulously measured metadata. The dataset is bifurcated into two subsets: one earmarking the testing phase, equipped solely with pixel size annotations; and the other, the training set, annotated with both pixel dimensions and head circumference measurements in millimeters.
+
+This fusion of imaging data and corresponding biometric measurements paves the way for the development of robust algorithms capable of automating the measurement process, thereby enhancing the accuracy and efficiency of prenatal diagnostics. The ensuing sections delineate the methodology adopted for data preprocessing, model training, and the eventual evaluation of the predictive prowess of the deployed algorithms.
+
+\section{Dataset Description}
+The dataset consists of ultrasound images of fetal heads along with corresponding metadata. The metadata includes information about the pixel size (in millimeters) and head circumference (also in millimeters) of each image. The first CSV file, test set pixel size.csv, contains the filenames of the images and their respective pixel sizes. The second CSV file, training set pixel size and HC.csv, located in a specified dataset path, contains filenames with both pixel sizes and head circumferences.
+
+\section{Image Loading and Preprocessing}
+
+The provided code segment encompasses the loading and preprocessing of images for subsequent use in a machine learning pipeline. This process is integral for transforming raw image data into a format suitable for training predictive models.
+
+The function \texttt{load\_and\_resize\_image} takes a filename as input and constructs the file path to the corresponding image within the dataset. It utilizes the OpenCV library to read the image in grayscale format and resizes it to a uniform dimension of 800x540 pixels. This resizing operation standardizes the image dimensions, facilitating consistency in subsequent processing steps.
+
+The function is applied to all filenames in the dataframe \texttt{annotations\_df}, resulting in a list of preprocessed images. Any images that fail to load are omitted from the list, with an informative message printed to alert the user.
+
+Following image preprocessing, the code segment checks if any images were successfully loaded. If images are present, they are converted into a numpy array and further preprocessed by normalizing pixel values to the range [0, 1]. Additionally, the corresponding head circumference values are extracted from \texttt{annotations\_df}.
+
+The dataset is then split into training and validation sets using a standard 80:20 ratio. This partitioning ensures that the model is trained on a sufficient amount of data while retaining a separate subset for validation and evaluation purposes.
+
+The output of the code segment confirms the successful loading and splitting of images. A total of 999 images were loaded, with 799 allocated to the training set and 200 to the validation set.
+
+\section{Data Preprocessing}
+
+Prior to the initiation of model training, a critical phase of data preprocessing is undertaken to ensure that the dataset is in a conducive state for the algorithms to process. This stage is cardinal for the mitigation of noise and enhancement of data quality, which are pivotal for the accuracy of the predictive models.
+
+\subsection{Image Resizing and Normalization}
+Each ultrasound image in the dataset possesses unique dimensions and pixel density. To homogenize the data, images are resized to a standard dimension, ensuring uniform input size for the neural network. Concurrently, pixel values are normalized to a range of 0 to 1. This normalization is instrumental in accelerating the convergence of the model during training by mitigating the computational complexity posed by large pixel values.
+
+\subsection{Data Cleaning}
+Data cleaning processes are applied to address any inconsistencies or missing values within the metadata. The pixel size measurements are meticulously examined to eschew any outliers or errors that could potentially skew the model's performance. Records with missing or anomalous head circumference measurements are either rectified or excluded from the dataset to preserve the integrity of the training process.
+
+\subsection{Data Augmentation}
+To bolster the robustness of the model against variances in new data, augmentation techniques are employed. These include geometric transformations such as rotations, translations, and flipping of images. Such manipulations enrich the dataset with a more comprehensive representation of possible variations, thereby enhancing the model's generalizability and preventing overfitting.
+
+\subsection{Dataset Splitting}
+The final step in data preprocessing involves segregating the dataset into distinct sets for training, validation, and testing. A conventional split ratio is adopted—typically 70\% for training, 15\% for validation, and 15\% for testing. This stratification ensures that the model is trained on a diverse array of data samples, fine-tuned against a separate validation set, and ultimately evaluated on unseen test data to impartially assess its predictive capabilities.
+
+The meticulousness of the preprocessing phase lays the groundwork for a model training process that is both efficient and poised for success. The following section elucidates the architecture of the model and the nuances of the training regimen.
+
+\section{Exploratory Data Analysis}
+
+A crucial step in the preliminary data analysis phase is to visualize the correlation between the distinct variables within the dataset. Figure \ref{fig:scatterplot} illustrates the scatter plot of pixel size against head circumference, providing insights into their potential linear relationship and the variability of the data.
+
+\begin{figure*}[htbp]
+  \centering
+  \includegraphics[width=\textwidth]{headcircum.png}
+  \caption{Scatter plot illustrating the relationship between pixel size (mm) and head circumference (mm). Each point represents an individual image in the dataset. A discernible trend suggests a correlation that may be pivotal for the predictive modeling process.}
+  \label{fig:scatterplot}
+\end{figure*}
+
+
+The spread of data points indicates variability in the measurements, which underscores the need for a robust model that can account for such variations. The next section discusses the preprocessing steps taken to ensure that the model is trained on data that is representative of this diversity.
+
+\section{Data Distribution Analysis}
+
+In order to grasp the underlying structure of the head circumference measurements within the dataset, a series of plots were generated to illustrate the distribution and central tendencies of the data.
+
+\subsection{Descriptive Statistics Visualization}
+
+A line plot, as depicted in Figure \ref{fig:lineplot}, provides a visual representation of the dataset's descriptive statistics, including the mean, standard deviation, minimum, and various percentiles. This plot is essential for identifying any atypical observations, such as outliers or anomalies, which may require further preprocessing.
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.48\textwidth]{headcircum2.png}
+  \caption{Line plot depicting the descriptive statistics of head circumference measurements. The plot outlines the key statistical indicators that highlight the central tendency and dispersion of the data.}
+  \label{fig:lineplot}
+\end{figure}
+
+\subsection{Frequency Distribution}
+
+Complementing the line plot, a histogram (Figure \ref{fig:histogram}) was constructed to illustrate the frequency distribution of the head circumference measurements. The histogram reveals the skewness or symmetry of the data distribution, which is vital for informing the choice of machine learning algorithms and data normalization techniques.
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.48\textwidth]{headcircum3.png}
+  \caption{Histogram showcasing the distribution of head circumference measurements across the dataset. This graphical representation elucidates the spread and shape of the data, providing insight into the typical ranges of head circumference encountered.}
+  \label{fig:histogram}
+\end{figure}
+
+The insights gleaned from these visual analyses are integral to the forthcoming data preprocessing steps and lay the groundwork for developing a predictive model that is sensitive to the nuances of the dataset's distribution.
+
+\section{Model}
+The model is built using the TensorFlow and Keras libraries. It consists of three Dense layers stacked together to form a neural network:
+
+\begin{itemize}
+    \item \textbf{Dense Layer 1:}
+    \begin{itemize}
+        \item Number of neurons: 64
+        \item Activation function: ReLU
+        \item Output shape: (None, 64)
+        \item Number of parameters: 192
+    \end{itemize}
+    
+    \item \textbf{Dense Layer 2:}
+    \begin{itemize}
+        \item Number of neurons: 64
+        \item Activation function: ReLU
+        \item Output shape: (None, 64)
+        \item Number of parameters: 4,160
+    \end{itemize}
+    
+    \item \textbf{Dense Layer 3 (Output layer):}
+    \begin{itemize}
+        \item Number of neurons: 1
+        \item Activation function: None (linear)
+        \item Output shape: (None, 1)
+        \item Number of parameters: 65
+    \end{itemize}
+\end{itemize}
+
+The total number of parameters of the model is 4,417, occupying approximately 17.25 KB in memory. All these parameters are trainable.
+
+\section{Training and Evaluation}
+
+\begin{itemize}
+    \item \textbf{Optimizer:} Adam
+    \item \textbf{Loss function:} Mean Squared Error (MSE)
+    \item \textbf{Metrics:} Mean Absolute Error (MAE)
+\end{itemize}
+
+The model is trained with the training data and then evaluated with the validation data. The final evaluation result of the model on the validation data shows that the Mean Absolute Error (MAE) is 0.00.
+
+This is a fairly low MAE, indicating that our model performs well on the given validation data.
+
+\end{document}
+
+\end{document}
