@@ -12,5 +12,5 @@ Student Info
 
 * Name: Tran Ngoc Hai
 * ID: BI12-150
-* Group ID: 
+* Group ID: 9
 
